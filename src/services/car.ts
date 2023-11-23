@@ -1,4 +1,4 @@
-import CarRepositories from "../repositories/carRepositories";
+import CarRepositories from "../repositories/car";
 import { Request } from "express";
 
 export default class CarServices {

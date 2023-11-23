@@ -1,7 +1,7 @@
 import { Model, ModelObject } from "objection";
 
 export class CarsModel extends Model {
-  car_id!: number;
+  car_id!: string;
   car_name!: string;
   brand_id!: number;
   type_id!: number;

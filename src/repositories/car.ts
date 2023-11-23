@@ -1,5 +1,5 @@
 import { CarsModel } from "../models/cars";
-import express, { Express, Request, Response } from "express";
+import { Request } from "express";
 
 export default class CarRepositories {
   async getAll() {
@@ -7,12 +7,12 @@ export default class CarRepositories {
   }
 
   async getById(req: Request) {
-    const getId = +req.params.id;
+    const getId = req.params.id;
     return await CarsModel.query().where("car_id", getId);
   }
 
   async deleteCar(req: Request) {
-    const getId = +req.params.id;
+    const getId = req.params.id;
     return await CarsModel.query().where("car_id", getId).del();
   }
 
@@ -21,7 +21,7 @@ export default class CarRepositories {
   }
 
   async updateCar(req: Request, item: any) {
-    const getId = +req.params.id;
+    const getId = req.params.id;
     return await CarsModel.query().where("car_id", "=", getId).update(item);
   }
 }

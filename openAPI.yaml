@@ -1,0 +1,9 @@
+openapi: 3.0.0
+info: #isinya adalah tiltle, description dll
+  title: Binar Car Rental API
+  version: 1.0.0
+path: #isinya merupakan endpoint2 yang ada
+  /endpoint1:
+    ger:
+      responses:
+  /endpoint2:

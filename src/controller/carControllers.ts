@@ -1,19 +1,19 @@
-import express, { Express, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import { CarsModel } from "../models/cars";
-import multer, { Multer } from "multer";
-import CarServices from "../services/carServices";
-import redis, { RedisClientType } from "redis";
+import CarServices from "../services/car";
+import { v4 as uuidv4 } from "uuid";
+import LogServices from "../services/logHistory";
 const cloudinary = require("./../../cloudinary");
 const uploadOnMemory = require("./../middleware/uploadOnMemory");
 
 const app = express();
 
 // redis init
-const client = redis.createClient();
+// const client = redis.createClient();
 
-client.on("error", (err) => {
-  console.error("Error in redis client", err);
-});
+// client.on("error", (err:any) => {
+//   console.error("Error in redis client", err);
+// });
 
 // get Cars
 const getCars = async (req: Request, res: Response) => {
@@ -30,7 +30,6 @@ const getCars = async (req: Request, res: Response) => {
 
 // Get car by id
 const getCarById = async (req: Request, res: Response) => {
-  // const getId = +req.params.id;
   const carById = await new CarServices().getById(req);
   if (carById.length) {
     console.log(carById);
@@ -44,11 +43,17 @@ const getCarById = async (req: Request, res: Response) => {
 
 // dellete car
 const deleteCar = async (req: Request, res: Response) => {
+  const getId = req.params.id;
+  const logData = {
+    user_id: (req as any).user?.user_id,
+    car_id: getId,
+    action: "delete",
+    description: `deleting car item with id ${getId}`,
+  };
+  const newLog = await new LogServices().postLog(logData);
   const deleteData = await new CarServices().deleteCar(req);
-  // const carList = await new CarServices().getAll();
-  return res.json({
-    status: "OK",
-    message: deleteData,
+  return res.status(202).json({
+    status: "Item has been deleted",
   });
 };
 
@@ -56,14 +61,13 @@ const deleteCar = async (req: Request, res: Response) => {
 const postCar = async (req: Request, res: Response) => {
   try {
     const body = req.body;
-
     if (!req.file) {
       return res.status(400).json({ message: "No image provided" });
     }
 
     const fileBase64 = req.file.buffer.toString("base64");
     const file = `data:${req.file.mimetype};base64,${fileBase64}`;
-    const result = await cloudinary.uploader.upload(file);
+    const result = await cloudinary.uploader.upload(file, { timeout: 120000 });
 
     const {
       car_name,
@@ -76,16 +80,20 @@ const postCar = async (req: Request, res: Response) => {
     } = body;
 
     const image_url = result.url;
-
-    const postCar = await new CarServices().postCar({ ...body, image_url });
-
-    // await CarsModel.query()
-    //   .insert({
-    //     ...body,
-    //     image_url,
-    //   })
-    //   .returning("*");
-
+    const car_id = uuidv4();
+    const postCar = await new CarServices().postCar({
+      ...body,
+      car_id,
+      image_url,
+    });
+    const logData = {
+      user_id: (req as any).user?.user_id,
+      car_id,
+      action: "post",
+      description: `add new car item with id ${car_id}`,
+    };
+    const newLog = await new LogServices().postLog(logData);
+    console.log(logData);
     res.status(201).json({ message: "New car has been created", car: postCar });
   } catch (error) {
     console.error(error);
@@ -96,7 +104,8 @@ const postCar = async (req: Request, res: Response) => {
 // Update Car
 const updateCar = async (req: Request, res: Response) => {
   const body = req.body;
-  const reqId = +req.params.id;
+  const reqId = req.params.id;
+  console.log(reqId);
   const carById = await CarsModel.query().where("car_id", "=", reqId);
 
   if (!carById.length) {
@@ -106,23 +115,34 @@ const updateCar = async (req: Request, res: Response) => {
   if (req.file) {
     const fileBase64 = req.file.buffer.toString("base64");
     const file = `data:${req.file.mimetype};base64,${fileBase64}`;
-    const result = await cloudinary.uploader.upload(file);
+    const result = await cloudinary.uploader.upload(file, { timeout: 120000 });
     const image_url = result.url;
     const updateData = { ...body, image_url };
     console.log(body);
     const updateCar = await new CarServices().updateCar(req, updateData);
+    const logData = {
+      user_id: (req as any).user?.user_id,
+      car_id: reqId,
+      action: "patch",
+      description: `update car item with id ${reqId}`,
+    };
+    const newLog = await new LogServices().postLog(logData);
+    console.log(logData, newLog);
     res.status(301).json({ message: "update success", updateData });
   } else {
     const updateData = body;
     const updateCar = await CarsModel.query()
       .where("car_id", "=", reqId)
       .update(updateData);
+    const logData = {
+      user_id: (req as any).user?.user_id,
+      car_id: reqId,
+      action: "patch",
+      description: `update car item with id ${reqId}`,
+    };
+    const newLog = await new LogServices().postLog(logData);
     res.status(301).json({ message: "update success", updateData });
   }
-
-  // const updateCar = await CarsModel.query()
-  //   .where("car_id", "=", car_id)
-  //   .update({});
 };
 
 module.exports = { getCars, getCarById, deleteCar, postCar, updateCar };

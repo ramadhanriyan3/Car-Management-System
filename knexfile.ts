@@ -4,7 +4,7 @@ module.exports = {
   development: {
     client: "postgresql",
     connection: {
-      database: "chapter_5",
+      database: "rent_car_db",
       user: "postgres",
       password: "kalianda23",
       // filename: "./dev.sqlite3"
