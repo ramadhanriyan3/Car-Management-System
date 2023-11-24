@@ -5,7 +5,7 @@ Create CRUD API using nodeJS, expressJS, Postgres, and typescript
 ## super dmin account
 
 email : marcell.superadmin@gmail.com
-passwoord : 123456
+password : 123456
 
 ## Entity Relationship Diagram (ERD)
 
