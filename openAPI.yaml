@@ -3,7 +3,73 @@ info: #isinya adalah tiltle, description dll
   title: Binar Car Rental API
   version: 1.0.0
 path: #isinya merupakan endpoint2 yang ada
-  /endpoint1:
-    ger:
+  /users/register:
+    post:
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: riyan
+              email:
+                type: string
+                example: riyan3@gmail.com
+              password:
+                type: string
+                example: riyan123
+
       responses:
-  /endpoint2:
+        "201":
+        description: send new data to database
+        content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+              type: string
+              example: new user has beed added
+
+  /users/login:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: riyan3@gmail.com
+                password:
+                  type: string
+                  example: riyan123
+
+      responses:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                succes:
+                  type: string
+                  example: login succes
+                token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDY3MmRiY2MtZTQ4MS00YThlLWE0YjctYmE3NGYyNTUxZGExIiwibmFtZSI6Im1hcmNlbGwiLCJlbWFpbCI6Im1hcmNlbGwuc3VwZXJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoic3VwZXJfYWRtaW4iLCJjcmVhdGVkX2F0IjoiMjAyMy0xMS0yMlQxNDozOTozNC4yNDdaIiwiaWF0IjoxNzAwNzM4NDc4LCJleHAiOjE3MDA4MjQ4Nzh9.GpL9ERwwUs8uwdpeGW7EEsa-SqxKQJWOrSLk7ok_ER4
+
+    /users/adimn/register:
+      post:
+        security:
+          -bearerToken: []
+  components:
+    securitySchemes:
+      bearerToken:
+      name: "Authorization"
+      type: http
+      scheme: "bearer"
