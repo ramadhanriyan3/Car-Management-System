@@ -1,38 +1,37 @@
 openapi: 3.0.0
-info: #isinya adalah tiltle, description dll
+info:
   title: Binar Car Rental API
   version: 1.0.0
-path: #isinya merupakan endpoint2 yang ada
+paths:
   /users/register:
     post:
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              name:
-                type: string
-                example: riyan
-              email:
-                type: string
-                example: riyan3@gmail.com
-              password:
-                type: string
-                example: riyan123
-
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: riyan
+                email:
+                  type: string
+                  example: riyan3@gmail.com
+                password:
+                  type: string
+                  example: riyan123
       responses:
         "201":
-        description: send new data to database
-        content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              message:
-              type: string
-              example: new user has beed added
+          description: send new data to database
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: new user has been added
 
   /users/login:
     post:
@@ -49,27 +48,73 @@ path: #isinya merupakan endpoint2 yang ada
                 password:
                   type: string
                   example: riyan123
-
       responses:
+        "201":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: string
+                    example: login success
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDY3MmRiY2MtZTQ4MS00YThlLWE0YjctYmE3NGYyNTUxZGExIiwibmFtZSI6Im1hcmNlbGwiLCJlbWFpbCI6Im1hcmNlbGwuc3VwZXJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoic3VwZXJfYWRtaW4iLCJjcmVhdGVkX2F0IjoiMjAyMy0xMS0yMlQxNDozOTozNC4yNDdaIiwiaWF0IjoxNzAwNzM4NDc4LCJleHAiOjE3MDA4MjQ4Nzh9.GpL9ERwwUs8uwdpeGW7EEsa-SqxKQJWOrSLk7ok_ER4
+
+  /users/admin/register:
+    post:
+      summary: Admin Registration
+      description: Register a new admin user.
+      tags:
+        - Super Admin
+      security:
+        - bearerToken: []
+      requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                succes:
+                name:
                   type: string
-                  example: login succes
-                token:
+                  example: marcell
+                email:
                   type: string
-                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDY3MmRiY2MtZTQ4MS00YThlLWE0YjctYmE3NGYyNTUxZGExIiwibmFtZSI6Im1hcmNlbGwiLCJlbWFpbCI6Im1hcmNlbGwuc3VwZXJhZG1pbkBnbWFpbC5jb20iLCJyb2xlIjoic3VwZXJfYWRtaW4iLCJjcmVhdGVkX2F0IjoiMjAyMy0xMS0yMlQxNDozOTozNC4yNDdaIiwiaWF0IjoxNzAwNzM4NDc4LCJleHAiOjE3MDA4MjQ4Nzh9.GpL9ERwwUs8uwdpeGW7EEsa-SqxKQJWOrSLk7ok_ER4
+                  format: email
+                  example: marcell.superadmin@gmail.com
+                password:
+                  type: string
+                  example: 123456
+              required:
+                - name
+                - email
+                - password
+      responses:
+        "201":
+          description: Admin user created successfully.
+          content:
+            application/json:
+              example:
+                message: new user has been added
+        "401":
+          description: Unauthorized. Invalid or expired token.
+          content:
+            application/json:
+              example:
+                message: Unauthorized
+                error: Invalid token
+        "403":
+          description: Forbidden. User does not have super admin privileges.
+          content:
+            application/json:
+              example:
+                message: Please login as a Super Admin
 
-    /users/adimn/register:
-      post:
-        security:
-          -bearerToken: []
-  components:
-    securitySchemes:
-      bearerToken:
-      name: "Authorization"
+components:
+  securitySchemes:
+    bearerToken:
       type: http
-      scheme: "bearer"
+      scheme: bearer
+      bearerFormat: JWT
